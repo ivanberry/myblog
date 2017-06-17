@@ -7,6 +7,7 @@ class BaseConfig:
     DEBUG = False
     TESTING = False
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SECRET_KEY = 'weak_full_stack'
 
 class DevelopmentConfig(BaseConfig):
     '''Development configuration'''
