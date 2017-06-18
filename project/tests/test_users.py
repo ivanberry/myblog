@@ -2,6 +2,14 @@
 
 import json
 from project.tests.base import BaseTestCase
+from project import db
+from project.api.models import User
+
+def add_user(username, email):
+    user = User(username=username, email=email)
+    db.session.add(user)
+    db.session.commit()
+    return user
 
 class TestUsersService(BaseTestCase):
     '''Tests for the Users Services'''
@@ -85,6 +93,40 @@ class TestUsersService(BaseTestCase):
             self.assertEqual(response.status_code, 400)
             self.assertIn('Sorry, That email has already exist.', data['message'])
             self.assertIn('fail', data['status'])
+
+    def test_single_user(self):
+        '''Ensures get single user behaves correctly'''
+
+        # add user first
+        user = add_user('tab', 'tab@gmail.com')
+
+        with self.client:
+            response = self.client.get(f'/users/{user.id}')
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue('created_at' in data['data'])
+            self.assertIn('tab', data['data']['username'])
+            self.assertIn('tab@gmail.com', data['data']['email'])
+            self.assertIn('success', data['status'])
+
+    def test_single_user_no_id(self):
+        '''Ensures error is thrown if an id is not provided'''
+        with self.client:
+            response = self.client.get(f'/users/blah')
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 404)
+            self.assertIn('User does not exit', data['message'])
+            self.assertIn('fail', data['status'])
+
+    def test_single_incorrect_id(self):
+        '''Ensure incorrect id is thrown if '''
+        with self.client:
+            response = self.client.get(f'/users/999')
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 404)
+            self.assertIn('User does not exit', data['message'])
+            self.assertIn('fail', data['status'])
+
 
 
 

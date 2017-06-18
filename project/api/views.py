@@ -1,4 +1,4 @@
-#project/api/views.py
+# project/api/views.py
 
 from flask import Blueprint, jsonify, request, make_response
 from project.api.models import User
@@ -7,12 +7,14 @@ from sqlalchemy import exc
 
 users_blueprint = Blueprint('users', __name__)
 
+
 @users_blueprint.route('/ping', methods=['GET'])
 def ping_pong():
     return jsonify({
         'status': 'success',
         'message': 'pong!'
     })
+
 
 @users_blueprint.route('/users', methods=['POST'])
 def add_user():
@@ -57,6 +59,28 @@ def add_user():
         return make_response(jsonify(response_object)), 400
 
 
+@users_blueprint.route('/users/<user_id>', methods=['GET'])
+def get_single_user(user_id):
+    '''Get single user details'''
+    response_object = {
+        'status': 'fail',
+        'message': 'User does not exit'
+    }
 
+    try:
+        user = User.query.filter_by(id=int(user_id)).first()
+        if not user:
+            return make_response(jsonify(response_object)), 404
+        else:
 
-
+            response_object = {
+                'status': 'success',
+                'data': {
+                    'username': user.username,
+                    'email': user.email,
+                    'created_at': user.created_at
+                }
+            }
+            return make_response(jsonify(response_object)), 200
+    except ValueError:
+        return make_response(jsonify(response_object)), 404
