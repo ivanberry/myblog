@@ -127,6 +127,23 @@ class TestUsersService(BaseTestCase):
             self.assertIn('User does not exit', data['message'])
             self.assertIn('fail', data['status'])
 
+    def test_all_users(self):
+        '''Ensure get all users behaviors correctly'''
+        add_user('tab', 'tab@gmail.com')
+        add_user('shirting', 'shirting@gmail.com')
+        with self.client:
+            response = self.client.get('/users')
+            data = json.loads(response.data.decode())
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(len(data['data']['users']), 2)
+            self.assertTrue('created_at' in data['data']['users'][0])
+            self.assertTrue('created_at' in data['data']['users'][1])
+            self.assertIn('tab', data['data']['users'][0]['username'])
+            self.assertIn('tab@gmail.com', data['data']['users'][0]['email'])
+            self.assertIn('shirting', data['data']['users'][1]['username'])
+            self.assertIn('shirting@gmail.com', data['data']['users'][1]['email'])
+            self.assertIn('success', data['status'])
+
 
 
 
