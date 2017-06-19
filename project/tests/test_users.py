@@ -172,6 +172,7 @@ class TestUsersService(BaseTestCase):
                 '/',
                 data=dict(username='tab', email='tab@gmail.com'),
                 follow_redirects=True
+                
             )
             self.assertEqual(response.status_code, 200)
             self.assertIn(b'<h1>All Users</h1>', response.data)
